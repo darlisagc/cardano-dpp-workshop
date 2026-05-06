@@ -56,8 +56,9 @@ def emitir_direto(
 
     Devolve (tx_hash, data_hash). O data_hash = sha256(gtin + serial)
     e o identificador do produto per template UVerify; util para
-    quem quiser verificar depois via verificador_sdk ou via URL
-    publica do UVerify.
+    quem quiser inspecionar a credencial pela URL publica do UVerify
+    ou usar como hint inicial no `verificador_misto` quando uma
+    cadeia mistura A com B/C.
     """
 
     # ----------------------------------------------------------------
@@ -156,9 +157,8 @@ def main() -> None:
     proxima_chave = PROXIMO_ATOR_ENV[args.ator]
 
     # Imprime resultado e instrui o aluno a atualizar o .env para
-    # encadear o proximo ator. data_hash e impresso para casos onde
-    # voce queira verificar depois via verificador_sdk ou pela URL
-    # publica do UVerify (ambos pedem o data_hash).
+    # encadear o proximo ator. data_hash e impresso para uso com a
+    # URL publica do UVerify ou como hint do verificador_misto.
     print("OK - tx submetida em Cardano preprod.")
     print(f"  tx_hash:        {tx_hash}")
     print(f"  data_hash:      {dh}")

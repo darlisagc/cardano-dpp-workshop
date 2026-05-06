@@ -8,9 +8,9 @@ Para cada credencial na cadeia:
      API publica do UVerify — funciona para credenciais emitidas via
      `emissor_sdk` (Opção B) ou pela UI (Opção C).
 
-Walks the chain via `cert_*_credential_tx` references como o
-`verificador_direto`, mas cada step e resolvido pelo caminho que
-casa com a transacao.
+Walks the chain via `cert_*_credential_tx` references — para cada
+step, escolhe automaticamente entre metadata nativa ou API UVerify
+de acordo com como aquela transacao foi emitida.
 
 Uso:
     PYTHONPATH=src python -m verificador_dpp.verificador_misto

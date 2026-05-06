@@ -156,8 +156,9 @@ def main() -> None:
     tx_hash, dh = emitir_via_sdk(args.ator, dict(os.environ), mnemonic)
     proxima_chave = PROXIMO_ATOR_ENV[args.ator]
 
-    # Imprime tx_hash + data_hash (este ultimo e necessario para
-    # o verificador_sdk - guarde como DATA_HASH_PACK quando for `pack`).
+    # Imprime tx_hash + data_hash (este ultimo e usado pelo
+    # verificador_misto como hint quando o pack veio da Opcao B/C —
+    # guarde como DATA_HASH_PACK no .env quando for `pack`).
     print("OK - credencial publicada em Cardano preprod.")
     print(f"  tx_hash:        {tx_hash}")
     print(f"  data_hash:      {dh}")

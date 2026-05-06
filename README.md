@@ -7,10 +7,13 @@ cadeia de Passaportes Digitais de Produto (DPP) ancorados em
 Cardano **preprod** — com **duas implementações paralelas** para
 cada operação:
 
-| Operação | A — Python direto | B — Python via SDK | C — UI UVerify | Misto |
-|---|---|---|---|---|
-| **Emissão** | `emissor_direto.py` | `emissor_sdk.py` | <https://app.preprod.uverify.io> | — (use A/B/C livremente) |
-| **Verificação** | `verificador_direto.py` (só cadeias todo-A) | `verificador_sdk.py` (só todo-B/C) | URL pública (1 cred. por vez) | `verificador_misto.py` (qualquer mistura A+B+C) |
+**Emissão** tem três opções (A, B, C); **verificação** é unificada num único módulo que cobre qualquer mistura:
+
+| Emissão | Como | Verificação (única) |
+|---|---|---|
+| **A — Python direto** | `emissor_direto.py` (PyCardano `TransactionBuilder`) | `verificador_misto.py` |
+| **B — Python via SDK** | `emissor_sdk.py` (`uverify-sdk`) | `verificador_misto.py` |
+| **C — UI UVerify** | <https://app.preprod.uverify.io> (sem código) | `verificador_misto.py` |
 
 > ⚠️ **Rede:** o UVerify público opera em **preprod testnet**. Todo
 > o starter aponta para preprod (Blockfrost preprod, faucet preprod,
@@ -89,52 +92,41 @@ mesma carteira HD (`wallet.py`).
 
 ## Verificação (Seção 3 do hands-on)
 
-Pré-requisito: `TX_HASH_PACK` e `DATA_HASH_PACK` no `.env`.
-
-### Opção A — direto via Blockfrost
-
-```bash
-PYTHONPATH=src python -m verificador_dpp.verificador_direto
-# ou
-PYTHONPATH=src python -m verificador_dpp.verificador_direto <txHashPack>
-```
-
-Reconstrói a cadeia origem → célula → pack seguindo as
-referências `cert_*_credential_tx`.
-
-### Opção B — via UVerify SDK
-
-```bash
-PYTHONPATH=src python -m verificador_dpp.verificador_sdk
-# ou
-PYTHONPATH=src python -m verificador_dpp.verificador_sdk \
-    --tx <txHashPack> --hash <dataHashPack>
-```
-
-Uma única chamada HTTP devolve a credencial estruturada.
-
-### Caminho misto — `verificador_misto.py` (recomendado para o workshop)
-
-Tenta metadata nativa primeiro; se falhar, extrai `data_hash` do
-inline datum on-chain e consulta a API do UVerify. Caminha
-cadeias **heterogêneas** (mistura de Opções A + B + C).
+Pré-requisitos no `.env`: `TX_HASH_PACK` e — se algum ator foi
+emitido via UVerify (B ou C) — `DATA_HASH_PACK`.
 
 ```bash
 PYTHONPATH=src python -m verificador_dpp.verificador_misto
+# ou:
+PYTHONPATH=src python -m verificador_dpp.verificador_misto <txHashPack>
 ```
 
-### Opção C — via URL UVerify (sem código)
+`verificador_misto` caminha qualquer cadeia, independente de qual
+opção emitiu cada credencial. Para cada tx:
 
-A UVerify expõe URLs públicas de verificação:
+1. Tenta a metadata nativa Cardano via Blockfrost — funciona se
+   foi emitida pelo `emissor_direto`.
+2. Se não achar `uverify_template_id`, lê o **inline datum** do
+   output de script, extrai todas as bytes de 32 bytes (candidatos
+   a `data_hash`) e tenta cada um contra a API do UVerify.
+
+Walks `cert_*_credential_tx` references até montar o passaporte
+completo (origem → célula → pack).
+
+### Atalho — verificação ad-hoc via URL UVerify (sem código)
+
+Para inspecionar **uma** credencial individual via browser (útil
+para demos ou para o consumidor final que só escaneia um QR):
 
 ```
-https://app.preprod.uverify.io/verify/by-transaction-hash/<TX_HASH_PACK>/<DATA_HASH_PACK>
-https://app.preprod.uverify.io/verify/<DATA_HASH_PACK>
-https://app.preprod.uverify.io/verify/<DATA_HASH_PACK>?serial=<SERIAL>
+https://app.preprod.uverify.io/verify/by-transaction-hash/<TX_HASH>/<DATA_HASH>
+https://app.preprod.uverify.io/verify/<DATA_HASH>
+https://app.preprod.uverify.io/verify/<DATA_HASH>?serial=<SERIAL>
 ```
 
-Útil para demos e para mostrar o que o consumidor final veria ao
-escanear um QR code. **Não monta a cadeia** — para isso, A ou B.
+Funciona apenas em credenciais emitidas via UVerify (B ou C). Não
+monta a cadeia — para reconstruir origem→célula→pack, use
+`verificador_misto`.
 
 ## Estrutura
 
@@ -150,9 +142,8 @@ starter/
     ├── wallet.py              # HD wallet CIP-1852 (compartilhado)
     ├── emissor_direto.py      # Opção A — PyCardano TransactionBuilder
     ├── emissor_sdk.py         # Opção B — uverify-sdk
-    ├── verificador_direto.py  # Opção A — Blockfrost + parser
-    ├── verificador_sdk.py     # Opção B — uverify-sdk
-    ├── cliente_blockfrost.py  # wrapper Blockfrost (usado pela Opção A do verificador)
+    ├── verificador_misto.py   # único verificador (cobre A + B + C)
+    ├── cliente_blockfrost.py  # wrapper Blockfrost (usado por verificador_misto)
     ├── parser_credencial.py   # parse de metadata UVerify
     ├── relatorio_passaporte.py # relatório pt-BR
     └── modelos.py             # dataclasses CredencialDPP / PassaporteBateria
