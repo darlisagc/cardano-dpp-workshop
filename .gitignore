@@ -11,4 +11,6 @@ env/
 .ruff_cache/
 .idea/
 .vscode/
+.DS_Store
+Thumbs.db
 wallet.txt
