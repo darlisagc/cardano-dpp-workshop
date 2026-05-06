@@ -40,7 +40,7 @@ from pycardano import (
     TransactionOutput,
 )
 
-from ._payloads import ATORES, PROXIMO_ATOR_ENV
+from ._payloads import ATORES, PROXIMO_ATOR_ENV, data_hash
 from .wallet import carregar_carteira
 
 # Label de metadata Cardano. Inteiro arbitrario >= 1 reservado pelo
@@ -51,8 +51,14 @@ METADATA_LABEL = 1990
 
 def emitir_direto(
     ator: str, env: dict[str, str], mnemonic: str, project_id: str
-) -> str:
-    """Emite a credencial DPP do ator informado e devolve o tx hash."""
+) -> tuple[str, str]:
+    """Emite a credencial DPP do ator informado.
+
+    Devolve (tx_hash, data_hash). O data_hash = sha256(gtin + serial)
+    e o identificador do produto per template UVerify; util para
+    quem quiser verificar depois via verificador_sdk ou via URL
+    publica do UVerify.
+    """
 
     # ----------------------------------------------------------------
     # Passo 1 — Construir o payload DPP do ator escolhido.
@@ -60,7 +66,8 @@ def emitir_direto(
     # pack, reciclagem) seguindo o template digitalProductPassport.
     # Atores 2-4 ainda exigem ATOR<N>_TX no env (para encadear).
     # ----------------------------------------------------------------
-    payload, _serial, _gtin = ATORES[ator](env)
+    payload, serial, gtin = ATORES[ator](env)
+    dh = data_hash(gtin, serial)
 
     # ----------------------------------------------------------------
     # Passo 2 — Carregar a carteira HD a partir do mnemonico.
@@ -109,7 +116,7 @@ def emitir_direto(
     # `submit_tx` retorna None em sucesso; o tx_hash sai de signed_tx.id.
     # ----------------------------------------------------------------
     context.submit_tx(signed_tx)
-    return str(signed_tx.id)
+    return str(signed_tx.id), dh
 
 
 def main() -> None:
@@ -145,18 +152,24 @@ def main() -> None:
     print()
 
     # Executa o fluxo de 6 passos definido em emitir_direto().
-    tx_hash = emitir_direto(args.ator, dict(os.environ), mnemonic, project_id)
+    tx_hash, dh = emitir_direto(args.ator, dict(os.environ), mnemonic, project_id)
     proxima_chave = PROXIMO_ATOR_ENV[args.ator]
 
     # Imprime resultado e instrui o aluno a atualizar o .env para
-    # encadear o proximo ator.
+    # encadear o proximo ator. data_hash e impresso para casos onde
+    # voce queira verificar depois via verificador_sdk ou pela URL
+    # publica do UVerify (ambos pedem o data_hash).
     print("OK - tx submetida em Cardano preprod.")
     print(f"  tx_hash:        {tx_hash}")
+    print(f"  data_hash:      {dh}")
     print(
         f"  CardanoScan:    https://preprod.cardanoscan.io/transaction/{tx_hash}"
     )
     print()
     print(f"Proximo passo: cole no .env como  {proxima_chave}={tx_hash}")
+    if args.ator == "pack":
+        print(f"             e tambem  TX_HASH_PACK={tx_hash}")
+        print(f"             e tambem  DATA_HASH_PACK={dh}")
 
 
 if __name__ == "__main__":
