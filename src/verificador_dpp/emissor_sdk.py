@@ -161,7 +161,7 @@ def main() -> None:
     print(f"  tx_hash:        {tx_hash}")
     print(f"  data_hash:      {dh}")
     print(
-        f"  CardanoScan:    https://preprod.cardanoscan.io/transaction/{tx_hash}"
+        f"  Cexplorer:      https://preprod.cexplorer.io/tx/{tx_hash}"
     )
     print()
 

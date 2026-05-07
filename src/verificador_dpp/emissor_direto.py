@@ -37,7 +37,6 @@ from pycardano import (
     BlockFrostChainContext,
     Metadata,
     TransactionBuilder,
-    TransactionOutput,
 )
 
 from ._payloads import ATORES, PROXIMO_ATOR_ENV, data_hash
@@ -90,13 +89,16 @@ def emitir_direto(
     # ----------------------------------------------------------------
     # Passo 4 — Construir a transacao com TransactionBuilder.
     #   - input:           UTxOs encontrados no nosso endereco
-    #   - output:          2 ADA voltam para nos mesmos (self-pay)
+    #   - output:          NENHUM explicito — `change_address` no
+    #                      build_and_sign manda o leftover (input - fee)
+    #                      de volta para o nosso proprio endereco
+    #                      (volta como UTxO seu, voce nao perde nada
+    #                      alem do fee de ~0.18 tADA)
     #   - auxiliary_data:  payload DPP como metadata nativa Cardano
     #                      sob o label 1990
     # ----------------------------------------------------------------
     builder = TransactionBuilder(context)
     builder.add_input_address(address)
-    builder.add_output(TransactionOutput(address, 2_000_000))  # 2 ADA self-pay
     builder.auxiliary_data = AuxiliaryData(
         Metadata({METADATA_LABEL: payload})
     )
@@ -113,7 +115,7 @@ def emitir_direto(
 
     # ----------------------------------------------------------------
     # Passo 6 — Submeter a transacao a rede preprod.
-    # Em ~20-40s a tx aparece em CardanoScan preprod.
+    # Em ~20-40s a tx aparece em Cexplorer preprod.
     # `submit_tx` retorna None em sucesso; o tx_hash sai de signed_tx.id.
     # ----------------------------------------------------------------
     context.submit_tx(signed_tx)
@@ -163,7 +165,7 @@ def main() -> None:
     print(f"  tx_hash:        {tx_hash}")
     print(f"  data_hash:      {dh}")
     print(
-        f"  CardanoScan:    https://preprod.cardanoscan.io/transaction/{tx_hash}"
+        f"  Cexplorer:      https://preprod.cexplorer.io/tx/{tx_hash}"
     )
     print()
 

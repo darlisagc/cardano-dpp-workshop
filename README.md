@@ -17,7 +17,7 @@ cada operação:
 
 > ⚠️ **Rede:** o UVerify público opera em **preprod testnet**. Todo
 > o starter aponta para preprod (Blockfrost preprod, faucet preprod,
-> CardanoScan preprod, API UVerify preprod).
+> Cexplorer preprod, API UVerify preprod).
 
 ---
 
