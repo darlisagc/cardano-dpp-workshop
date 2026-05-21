@@ -1,4 +1,4 @@
-"""Verificador DPP MISTO — caminha cadeias heterogeneas (A + B/C).
+"""Verificador DPP — caminha cadeias heterogeneas (A + B/C).
 
 Para cada credencial na cadeia:
   1. Tenta primeiro ler metadata nativa (Blockfrost) — funciona para
@@ -13,8 +13,8 @@ step, escolhe automaticamente entre metadata nativa ou API UVerify
 de acordo com como aquela transacao foi emitida.
 
 Uso:
-    PYTHONPATH=src python -m verificador_dpp.verificador_misto
-    PYTHONPATH=src python -m verificador_dpp.verificador_misto <tx_hash_pack>
+    PYTHONPATH=src python -m verificador_dpp.verificador
+    PYTHONPATH=src python -m verificador_dpp.verificador <tx_hash_pack>
 
 Pre-requisitos no .env:
     BLOCKFROST_PROJECT_ID  projeto preprod
@@ -215,8 +215,8 @@ def main() -> None:
         sys.exit("ERRO: BLOCKFROST_PROJECT_ID nao configurado no .env.")
 
     print("=" * 64)
-    print("Verificador DPP MISTO — Blockfrost + UVerify SDK")
-    print("Caminha cadeias heterogeneas (Opção A + B/C)")
+    print("Verificador DPP - Workshop Cardano")
+    print("De Jequitinhonha a Europa: o Passaporte da Bateria")
     print("=" * 64)
     print()
 

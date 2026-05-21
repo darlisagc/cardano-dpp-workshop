@@ -11,9 +11,9 @@ cada operação:
 
 | Emissão | Como | Verificação (única) |
 |---|---|---|
-| **A — Python direto** | `emissor_direto.py` (PyCardano `TransactionBuilder`) | `verificador_misto.py` |
-| **B — Python via SDK** | `emissor_sdk.py` (`uverify-sdk`) | `verificador_misto.py` |
-| **C — UI UVerify** | <https://app.preprod.uverify.io> (sem código) | `verificador_misto.py` |
+| **A — Python direto** | `emissor_direto.py` (PyCardano `TransactionBuilder`) | `verificador.py` |
+| **B — Python via SDK** | `emissor_sdk.py` (`uverify-sdk`) | `verificador.py` |
+| **C — UI UVerify** | <https://app.preprod.uverify.io> (sem código) | `verificador.py` |
 
 > ⚠️ **Rede:** o UVerify público opera em **preprod testnet**. Todo
 > o starter aponta para preprod (Blockfrost preprod, faucet preprod,
@@ -87,12 +87,12 @@ Pré-requisitos no `.env`: `TX_HASH_PACK` e — se algum ator foi
 emitido via UVerify (B ou C) — `DATA_HASH_PACK`.
 
 ```bash
-uv run python -m verificador_dpp.verificador_misto
+uv run python -m verificador_dpp.verificador
 # ou:
-uv run python -m verificador_dpp.verificador_misto <txHashPack>
+uv run python -m verificador_dpp.verificador <txHashPack>
 ```
 
-`verificador_misto` caminha qualquer cadeia, independente de qual
+`verificador` caminha qualquer cadeia, independente de qual
 opção emitiu cada credencial. Para cada tx:
 
 1. Tenta a metadata nativa Cardano via Blockfrost — funciona se
@@ -117,7 +117,7 @@ https://app.preprod.uverify.io/verify/<DATA_HASH>?serial=<SERIAL>
 
 Funciona apenas em credenciais emitidas via UVerify (B ou C). Não
 monta a cadeia — para reconstruir origem→célula→pack, use
-`verificador_misto`.
+`verificador`.
 
 ## Estrutura
 
@@ -134,8 +134,8 @@ starter/
     ├── wallet.py              # HD wallet CIP-1852 (compartilhado)
     ├── emissor_direto.py      # Opção A — PyCardano TransactionBuilder
     ├── emissor_sdk.py         # Opção B — uverify-sdk
-    ├── verificador_misto.py   # único verificador (cobre A + B + C)
-    ├── cliente_blockfrost.py  # wrapper Blockfrost (usado por verificador_misto)
+    ├── verificador.py   # único verificador (cobre A + B + C)
+    ├── cliente_blockfrost.py  # wrapper Blockfrost (usado por verificador)
     ├── parser_credencial.py   # parse de metadata UVerify
     ├── relatorio_passaporte.py # relatório pt-BR
     └── modelos.py             # dataclasses CredencialDPP / PassaporteBateria

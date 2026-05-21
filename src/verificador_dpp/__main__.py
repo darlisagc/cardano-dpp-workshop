@@ -3,7 +3,7 @@
 Modulos do workshop:
     emissor_direto      Emite DPP direto via PyCardano (Opcao A)
     emissor_sdk         Emite DPP via uverify-sdk      (Opcao B)
-    verificador_misto   Verifica qualquer cadeia (A + B + C)
+    verificador         Verifica qualquer cadeia (A + B + C)
 """
 
 import sys
@@ -17,7 +17,7 @@ Para emitir credenciais (Secao 2):
   (Opcao C: emita pela UI em https://app.preprod.uverify.io)
 
 Para verificar (Secao 3):
-  python -m verificador_dpp.verificador_misto [tx_hash]
+  python -m verificador_dpp.verificador [tx_hash]
 
 Configuracao em .env (ver .env.example).
 """
